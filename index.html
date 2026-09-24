@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>JSON Lens v0.1</title>
+<style>
+:root{--bg:#0b1020;--panel:#11182b;--panel2:#0e1527;--text:#e8edf7;--muted:#8fa0bd;--line:#26324a;--accent:#7dd3fc;--good:#86efac;--bad:#fca5a5;--chip:#1b2740}*{box-sizing:border-box}body{margin:0;font:14px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--bg);color:var(--text)}button,input,textarea{font:inherit}.top{height:64px;padding:12px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}.brand{font:700 18px system-ui}.brand span{color:var(--accent)}.sub{font:12px system-ui;color:var(--muted);margin-top:2px}.local{color:var(--good);font:12px system-ui}.app{display:grid;grid-template-columns:minmax(280px,45%) 8px minmax(320px,1fr);height:calc(100vh - 64px)}.pane{min-width:0;display:flex;flex-direction:column}.splitter{position:relative;cursor:col-resize;background:var(--line);touch-action:none}.splitter:after{content:'';position:absolute;inset:0 -4px}.splitter:hover,.splitter.dragging{background:var(--accent)}body.resizing{cursor:col-resize;user-select:none}.bar{height:52px;display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--panel)}.bar .title{font:700 12px system-ui;letter-spacing:.08em;color:var(--muted);margin-right:auto}.btn{border:1px solid var(--line);background:var(--chip);color:var(--text);padding:7px 10px;border-radius:8px;cursor:pointer}.btn:hover{border-color:#4b638c}.btn.active{background:#17334a;border-color:#2c7299;color:#c9f1ff}.editor{flex:1;width:100%;resize:none;border:0;outline:0;padding:16px;background:var(--panel2);color:#dce8ff;tab-size:2;white-space:pre;overflow:auto}.editor.wrap{white-space:pre-wrap;overflow-wrap:anywhere}.status{padding:8px 12px;border-top:1px solid var(--line);color:var(--muted);min-height:38px}.ok{color:var(--good)}.err{color:var(--bad)}.result-head{display:flex;gap:8px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--panel)}.search{flex:1;border:1px solid var(--line);background:#0a1120;color:var(--text);padding:8px 10px;border-radius:8px;outline:0}.content{flex:1;overflow:auto;padding:14px}.tree-row{display:flex;align-items:center;gap:6px;min-height:27px;border-radius:6px;padding:2px 5px}.tree-row:hover{background:#151f34}.toggle{width:18px;display:inline-block;color:var(--muted);cursor:pointer}.key{color:#93c5fd;cursor:pointer}.str{color:#fde68a}.num{color:#c4b5fd}.bool{color:#86efac}.null{color:#fca5a5}.meta{color:var(--muted)}.hidden{display:none!important}.pathbox{border-top:1px solid var(--line);padding:10px 12px;background:var(--panel);display:flex;align-items:center;gap:8px}.path{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#cbd5e1}.table-wrap{overflow:auto}.tbl{width:100%;border-collapse:collapse;font-family:system-ui;font-size:13px}.tbl th,.tbl td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wrap-mode .tbl th,.wrap-mode .tbl td{white-space:normal;overflow-wrap:anywhere}.nested-table{margin:2px 0;min-width:max-content}.nested-table th,.nested-table td{padding:5px 7px;font-size:12px;max-width:260px}.nested-label{color:var(--muted);font-size:11px;margin-bottom:4px}.tbl th{position:sticky;top:0;background:#172138;color:#b9c8df}.empty{height:100%;display:grid;place-items:center;color:var(--muted);font-family:system-ui;text-align:center;padding:30px}.kbd{border:1px solid var(--line);padding:1px 5px;border-radius:5px;background:#0a1120}.match{outline:1px solid #fbbf24;background:#3b2e13!important}.pane.result-fullscreen{position:fixed;inset:0;z-index:9999;background:var(--bg);min-height:100vh}.pane.result-fullscreen .content{min-height:0}.iconbtn{min-width:38px}.btn:disabled{opacity:.4;cursor:not-allowed}@media(max-width:850px){.app{grid-template-columns:1fr;height:auto}.splitter{display:none}.pane{min-height:70vh}.pane:first-child{border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<header class="top"><div><div class="brand">JSON <span>LENS</span> <small style="font-weight:400;color:#64748b">v0.1</small></div><div class="sub">Inspect JSON without uploading your data</div></div><div class="local">● Local only</div></header>
+<main class="app">
+<section class="pane"><div class="bar"><span class="title">INPUT</span><button class="btn" id="formatBtn">Format</button><button class="btn" id="minifyBtn">Minify</button><button class="btn" id="copyBtn">Copy</button><button class="btn" id="clearBtn">Clear</button></div><textarea id="editor" class="editor" spellcheck="false" placeholder='Paste JSON here…\n\n{\n  "company": "SUSCO",\n  "data": [{"id":123,"title":"News"}]\n}'></textarea><div class="status" id="status">Paste JSON to begin · <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> format</div></section>
+<div class="splitter" id="splitter" title="Drag to resize panels" aria-label="Resize panels"></div>
+<section class="pane" id="resultPane"><div class="result-head"><button class="btn active" id="treeBtn">Tree</button><button class="btn" id="tableBtn">Table</button><input id="search" class="search" placeholder="Search keys or values…" /><button class="btn" id="wrapBtn" title="Wrap long lines">Wrap</button><button class="btn iconbtn" id="rotateBtn" title="Rotate / transpose table">↻</button><button class="btn iconbtn" id="fullscreenBtn" title="Full screen result">⛶</button></div><div class="content" id="content"><div class="empty">Paste valid JSON on the left.<br/>Everything stays in your browser.</div></div><div class="pathbox"><span class="meta">Path</span><code class="path" id="path">—</code><button class="btn" id="copyPathBtn">Copy</button></div></section>
+</main>
+<script>
+const $=s=>document.querySelector(s), editor=$('#editor'), content=$('#content'), statusEl=$('#status'), pathEl=$('#path'), search=$('#search');
+let parsed=null, view='tree', wrapMode=localStorage.getItem('jsonLensWrap')==='1', rotateMode=false;
+const app=$('.app'), splitter=$('#splitter');
+let resizing=false;
+function setSplit(clientX){
+  if(window.innerWidth<=850)return;
+  const r=app.getBoundingClientRect();
+  const minLeft=280, minRight=320, splitW=8;
+  const left=Math.max(minLeft,Math.min(clientX-r.left,r.width-minRight-splitW));
+  app.style.gridTemplateColumns=left+'px '+splitW+'px minmax('+minRight+'px,1fr)';
+  localStorage.setItem('jsonLensSplit',String(left));
+}
+splitter.addEventListener('pointerdown',e=>{resizing=true;splitter.classList.add('dragging');document.body.classList.add('resizing');splitter.setPointerCapture(e.pointerId)});
+splitter.addEventListener('pointermove',e=>{if(resizing)setSplit(e.clientX)});
+splitter.addEventListener('pointerup',e=>{resizing=false;splitter.classList.remove('dragging');document.body.classList.remove('resizing');try{splitter.releasePointerCapture(e.pointerId)}catch(_){}});
+splitter.addEventListener('dblclick',()=>{app.style.gridTemplateColumns='minmax(280px,45%) 8px minmax(320px,1fr)';localStorage.removeItem('jsonLensSplit')});
+const savedSplit=Number(localStorage.getItem('jsonLensSplit'));if(savedSplit&&window.innerWidth>850)setSplit(app.getBoundingClientRect().left+savedSplit);
+function esc(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function parse(show=true){try{parsed=JSON.parse(editor.value); if(show) render(); stats(); return parsed}catch(e){parsed=null;content.innerHTML='<div class="empty err">Invalid JSON<br><small>'+esc(e.message)+'</small></div>';statusEl.innerHTML='<span class="err">✕ Invalid JSON — '+esc(e.message)+'</span>';return null}}
+function stats(){if(parsed===null)return;let o=0,a=0,k=0;const walk=x=>{if(Array.isArray(x)){a++;x.forEach(walk)}else if(x&&typeof x==='object'){o++;k+=Object.keys(x).length;Object.values(x).forEach(walk)}};walk(parsed);const bytes=new Blob([editor.value]).size;statusEl.innerHTML='<span class="ok">✓ Valid JSON</span> &nbsp; '+o+' objects &nbsp; '+a+' arrays &nbsp; '+k+' keys &nbsp; '+bytes.toLocaleString()+' bytes'}
+function typeVal(v){if(v===null)return '<span class="null">null</span>';if(typeof v==='string')return '<span class="str">"'+esc(v)+'"</span>';if(typeof v==='number')return '<span class="num">'+v+'</span>';if(typeof v==='boolean')return '<span class="bool">'+v+'</span>';return ''}
+function pathJoin(p,k,isArray){return isArray?p+'['+k+']':p+(p==='$'?'.':'.')+k}
+function node(v,key,p,depth,isArray=false){const pad=depth*18;if(v&&typeof v==='object'){const arr=Array.isArray(v), keys=Object.keys(v), id='n'+Math.random().toString(36).slice(2);let h='<div class="tree-row searchable" style="padding-left:'+pad+'px" data-search="'+esc(key+' '+p)+'"><span class="toggle" data-target="'+id+'">▼</span><span class="key" data-path="'+esc(p)+'">'+esc(key)+'</span><span class="meta">'+(arr?'Array('+keys.length+')':'Object('+keys.length+')')+'</span></div><div id="'+id+'">';keys.forEach(k=>{const cp=pathJoin(p,k,arr);h+=node(v[k],arr?'['+k+']':k,cp,depth+1,arr)});return h+'</div>'}return '<div class="tree-row searchable" style="padding-left:'+pad+'px" data-search="'+esc(key+' '+String(v)+' '+p)+'"><span class="toggle"></span><span class="key" data-path="'+esc(p)+'">'+esc(key)+'</span><span>'+typeVal(v)+'</span></div>'}
+function tablePrimitive(v){if(v===null)return '<span class="null">null</span>';if(typeof v==='string')return '<span class="str">'+esc(v)+'</span>';if(typeof v==='number')return '<span class="num">'+v+'</span>';if(typeof v==='boolean')return '<span class="bool">'+v+'</span>';return esc(v)}
+function tableValue(v,depth=0){
+  if(v===null||typeof v!=='object') return tablePrimitive(v);
+  if(depth>5) return '<span class="meta">'+esc(JSON.stringify(v))+'</span>';
+  if(Array.isArray(v)){
+    if(!v.length)return '<span class="meta">[]</span>';
+    if(v.every(x=>x===null||typeof x!=='object')){
+      return '<table class="tbl nested-table"><thead><tr><th>#</th><th>Value</th></tr></thead><tbody>'+v.map((x,i)=>'<tr><td>'+i+'</td><td>'+tableValue(x,depth+1)+'</td></tr>').join('')+'</tbody></table>';
+    }
+    return tableForRows(v,depth+1);
+  }
+  return tableForObject(v,depth+1);
+}
+function tableForObject(obj,depth=0){
+  const entries=Object.entries(obj);
+  if(!entries.length)return '<span class="meta">{}</span>';
+  return '<table class="tbl nested-table"><thead><tr><th>Key</th><th>Value</th></tr></thead><tbody>'+entries.map(([k,v])=>'<tr><td>'+esc(k)+'</td><td>'+tableValue(v,depth+1)+'</td></tr>').join('')+'</tbody></table>';
+}
+function tableForRows(arr,depth=0){
+  const rows=arr.map(x=>(x&&typeof x==='object'&&!Array.isArray(x))?x:{value:x});
+  const cols=[...new Set(rows.flatMap(r=>Object.keys(r)))];
+  return '<div class="table-wrap"><table class="tbl'+(depth?' nested-table':'')+'"><thead><tr>'+cols.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map(c=>'<td>'+(r[c]===undefined?'':tableValue(r[c],depth+1))+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+}
+function rotatedTable(v){
+  if(Array.isArray(v)){
+    const rows=v.map(x=>(x&&typeof x==='object'&&!Array.isArray(x))?x:{value:x});
+    const cols=[...new Set(rows.flatMap(r=>Object.keys(r)))];
+    return '<div class="table-wrap"><table class="tbl"><thead><tr><th>Field</th>'+rows.map((_,i)=>'<th>['+i+']</th>').join('')+'</tr></thead><tbody>'+cols.map(c=>'<tr><th>'+esc(c)+'</th>'+rows.map(r=>'<td>'+(r[c]===undefined?'':tableValue(r[c],1))+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  }
+  if(v&&typeof v==='object'){
+    return '<div class="table-wrap"><table class="tbl"><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>'+Object.entries(v).map(([k,val])=>'<tr><th>'+esc(k)+'</th><td>'+tableValue(val,1)+'</td></tr>').join('')+'</tbody></table></div>';
+  }
+  return tableValue(v);
+}
+function table(){
+  if(rotateMode) return rotatedTable(parsed);
+  if(Array.isArray(parsed)) return tableForRows(parsed,0);
+  if(parsed&&typeof parsed==='object') return tableForObject(parsed,0);
+  return '<table class="tbl"><thead><tr><th>Value</th></tr></thead><tbody><tr><td>'+tableValue(parsed)+'</td></tr></tbody></table>';
+}
+function render(){if(parsed===null)return;content.classList.toggle('wrap-mode',wrapMode);content.innerHTML=view==='tree'?node(parsed,'root','$',0):table();bindTree();applySearch();syncResultTools()}
+function bindTree(){content.querySelectorAll('.toggle[data-target]').forEach(t=>t.onclick=()=>{const e=document.getElementById(t.dataset.target);e.classList.toggle('hidden');t.textContent=e.classList.contains('hidden')?'▶':'▼'});content.querySelectorAll('.key[data-path]').forEach(k=>k.onclick=()=>{pathEl.textContent=k.dataset.path})}
+function applySearch(){const q=search.value.trim().toLowerCase();content.querySelectorAll('.searchable').forEach(e=>e.classList.toggle('match',!!q&&e.dataset.search.toLowerCase().includes(q)))}
+editor.addEventListener('input',()=>{if(!editor.value.trim()){parsed=null;statusEl.textContent='Paste JSON to begin';content.innerHTML='<div class="empty">Paste valid JSON on the left.<br/>Everything stays in your browser.</div>';return}parse()});
+search.addEventListener('input',applySearch);
+function syncWrap(){editor.classList.toggle('wrap',wrapMode);content.classList.toggle('wrap-mode',wrapMode);const b=$('#wrapBtn');b.classList.toggle('active',wrapMode);b.textContent=wrapMode?'Wrap ✓':'Wrap'}
+function syncResultTools(){const r=$('#rotateBtn');r.disabled=view!=='table';r.classList.toggle('active',view==='table'&&rotateMode);r.title=view==='table'?(rotateMode?'Restore table orientation':'Rotate / transpose table'):'Rotate is available in Table view';}
+$('#wrapBtn').onclick=()=>{wrapMode=!wrapMode;localStorage.setItem('jsonLensWrap',wrapMode?'1':'0');syncWrap();render()};
+syncWrap();syncResultTools();
+$('#rotateBtn').onclick=()=>{if(view!=='table')return;rotateMode=!rotateMode;render()};
+$('#fullscreenBtn').onclick=()=>{const pane=$('#resultPane');pane.classList.toggle('result-fullscreen');const on=pane.classList.contains('result-fullscreen');$('#fullscreenBtn').classList.toggle('active',on);$('#fullscreenBtn').textContent=on?'✕':'⛶';$('#fullscreenBtn').title=on?'Exit full screen':'Full screen result'};
+$('#formatBtn').onclick=()=>{const p=parse(false);if(p!==null){editor.value=JSON.stringify(p,null,2);parse()}};
+$('#minifyBtn').onclick=()=>{const p=parse(false);if(p!==null){editor.value=JSON.stringify(p);parse()}};
+$('#clearBtn').onclick=()=>{editor.value='';parsed=null;pathEl.textContent='—';search.value='';statusEl.textContent='Paste JSON to begin';content.innerHTML='<div class="empty">Paste valid JSON on the left.<br/>Everything stays in your browser.</div>';editor.focus()};
+async function copy(t,b){try{await navigator.clipboard.writeText(t);const old=b.textContent;b.textContent='Copied!';setTimeout(()=>b.textContent=old,900)}catch{}}
+$('#copyBtn').onclick=()=>copy(editor.value,$('#copyBtn'));$('#copyPathBtn').onclick=()=>pathEl.textContent!=='—'&&copy(pathEl.textContent,$('#copyPathBtn'));
+$('#treeBtn').onclick=()=>{view='tree';$('#treeBtn').classList.add('active');$('#tableBtn').classList.remove('active');render()};$('#tableBtn').onclick=()=>{view='table';$('#tableBtn').classList.add('active');$('#treeBtn').classList.remove('active');render()};
+document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='Enter'){$('#formatBtn').click();e.preventDefault()}if(e.key==='Escape'&&$('#resultPane').classList.contains('result-fullscreen')){$('#fullscreenBtn').click()}});
+const demo={company:'SUSCO',active:true,data:[{id:123,title:'Annual General Meeting',year:2026,tags:['IR','meeting']},{id:124,title:'Dividend Payment',year:2026,tags:['dividend']}],meta:{page:1,total:2,generatedAt:null}};editor.value=JSON.stringify(demo,null,2);parse();
+</script>
+</body></html>
