@@ -11,7 +11,7 @@
 <body>
 <header class="top"><div><div class="brand">JSON <span>LENS</span> <small style="font-weight:400;color:#64748b">v0.1</small></div><div class="sub">Inspect JSON without uploading your data</div></div><div class="local">● Local only</div></header>
 <main class="app">
-<section class="pane"><div class="bar"><span class="title">INPUT</span><button class="btn" id="formatBtn">Format</button><button class="btn" id="minifyBtn">Minify</button><button class="btn" id="copyBtn">Copy</button><button class="btn" id="clearBtn">Clear</button></div><textarea id="editor" class="editor" spellcheck="false" placeholder='Paste JSON here…\n\n{\n  "company": "SUSCO",\n  "data": [{"id":123,"title":"News"}]\n}'></textarea><div class="status" id="status">Paste JSON to begin · <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> format</div></section>
+<section class="pane"><div class="bar"><span class="title">INPUT</span><button class="btn" id="formatBtn">Format</button><button class="btn" id="minifyBtn">Minify</button><button class="btn" id="copyBtn">Copy</button><button class="btn" id="clearBtn">Clear</button></div><textarea id="editor" class="editor" spellcheck="false" placeholder='Paste JSON here…'></textarea><div class="status" id="status">Paste JSON to begin · <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> format</div></section>
 <div class="splitter" id="splitter" title="Drag to resize panels" aria-label="Resize panels"></div>
 <section class="pane" id="resultPane"><div class="result-head"><button class="btn active" id="treeBtn">Tree</button><button class="btn" id="tableBtn">Table</button><input id="search" class="search" placeholder="Search keys or values…" /><button class="btn" id="wrapBtn" title="Wrap long lines">Wrap</button><button class="btn iconbtn" id="rotateBtn" title="Rotate / transpose table">↻</button><button class="btn iconbtn" id="fullscreenBtn" title="Full screen result">⛶</button></div><div class="content" id="content"><div class="empty">Paste valid JSON on the left.<br/>Everything stays in your browser.</div></div><div class="pathbox"><span class="meta">Path</span><code class="path" id="path">—</code><button class="btn" id="copyPathBtn">Copy</button></div></section>
 </main>
@@ -97,6 +97,6 @@ async function copy(t,b){try{await navigator.clipboard.writeText(t);const old=b.
 $('#copyBtn').onclick=()=>copy(editor.value,$('#copyBtn'));$('#copyPathBtn').onclick=()=>pathEl.textContent!=='—'&&copy(pathEl.textContent,$('#copyPathBtn'));
 $('#treeBtn').onclick=()=>{view='tree';$('#treeBtn').classList.add('active');$('#tableBtn').classList.remove('active');render()};$('#tableBtn').onclick=()=>{view='table';$('#tableBtn').classList.add('active');$('#treeBtn').classList.remove('active');render()};
 document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='Enter'){$('#formatBtn').click();e.preventDefault()}if(e.key==='Escape'&&$('#resultPane').classList.contains('result-fullscreen')){$('#fullscreenBtn').click()}});
-const demo={company:'SUSCO',active:true,data:[{id:123,title:'Annual General Meeting',year:2026,tags:['IR','meeting']},{id:124,title:'Dividend Payment',year:2026,tags:['dividend']}],meta:{page:1,total:2,generatedAt:null}};editor.value=JSON.stringify(demo,null,2);parse();
+editor.value=''; renderEmpty();
 </script>
 </body></html>
